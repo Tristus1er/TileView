@@ -56,9 +56,9 @@ public class DetailLevel implements Comparable<DetailLevel> {
 		
 		
 		int startingRow = (int) Math.floor( viewport.top / offsetHeight );
-		int endingRow = (int) Math.ceil( viewport.bottom / offsetHeight );
+		int endingRow = (int) Math.ceil( viewport.bottom / offsetHeight ) - 1;
 		int startingColumn = (int) Math.floor( viewport.left / offsetWidth );
-		int endingColumn = (int) Math.ceil( viewport.right / offsetWidth );
+		int endingColumn = (int) Math.ceil( viewport.right / offsetWidth ) - 1;
 		
 		DetailLevelPatternParser parser = detailManager.getDetailLevelPatternParser();
 		
