@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
 import com.qozix.animation.Tween;
@@ -92,6 +93,8 @@ public class ZoomPanLayout extends ViewGroup {
 	private HashSet<ZoomPanListener> zoomPanListeners = new HashSet<ZoomPanListener>();
 
 	private StaticLayout clip;
+
+	private Handler longPressTimer;
 
 	private TweenListener tweenListener = new TweenListener() {
 		@Override
@@ -717,9 +720,11 @@ public class ZoomPanLayout extends ViewGroup {
 			for ( GestureListener listener : gestureListeners ) {
 				listener.onFingerDown( actualPoint );
 			}
+			startLongClickTimer();
 			break;
 		// second finger goes down
 		case MotionEvent.ACTION_POINTER_DOWN :
+			cancelLongClickTimer();
 			setTapInterrupted( true );
 			saveHistoricalPinchDistance();
 			saveHistoricalScale();
@@ -754,6 +759,7 @@ public class ZoomPanLayout extends ViewGroup {
 			break;
 		// first finger goes up
 		case MotionEvent.ACTION_UP :
+			cancelLongClickTimer();
 			if ( performFling() ) {
 				isBeingFlung = true;
 				Point startPoint = new Point( getScrollX(), getScrollY() );
@@ -791,6 +797,7 @@ public class ZoomPanLayout extends ViewGroup {
 			break;
 		// second finger goes up
 		case MotionEvent.ACTION_POINTER_UP :
+			cancelLongClickTimer();
 			setTapInterrupted( true );
 			for ( GestureListener listener : gestureListeners ) {
 				listener.onFingerUp( actualPoint );
@@ -809,7 +816,51 @@ public class ZoomPanLayout extends ViewGroup {
 		return true;
 		
 	}
+
+
+	// if the touch event has traveled past threshold since the finger first when down, it's not a tap
+	private boolean determineIfQualifiedLongTap(){
+		return ( Math.abs( firstFinger.x - singleTapHistory.x ) <= SINGLE_TAP_DISTANCE_THRESHOLD )
+				&& ( Math.abs( firstFinger.y - singleTapHistory.y ) <= SINGLE_TAP_DISTANCE_THRESHOLD );
+	}
+
+	private void startLongClickTimer() {
 	
+		// if it already exists then remove the previous messages if there are some 
+		if(longPressTimer != null){
+			longPressTimer.removeCallbacks(longPressRunnable);
+		}else{
+			// Else (it's the firlst time) then create the object
+			longPressTimer = new Handler();
+		}
+		
+		longPressTimer.postDelayed(longPressRunnable, ViewConfiguration.getLongPressTimeout());
+	}
+
+	private void cancelLongClickTimer() {
+
+		if(longPressTimer != null){
+			longPressTimer.removeCallbacks(longPressRunnable);
+		}
+	}
+
+	private Runnable longPressRunnable = new Runnable() {
+
+		@Override
+		public void run() {
+
+			if(determineIfQualifiedLongTap()){
+
+				for ( GestureListener listener : gestureListeners ) {
+					listener.onLongTap(actualPoint);
+				}
+			}
+
+		}
+	};
+
+
+
 	private static class ScrollActionHandler extends Handler {
 		private final WeakReference<ZoomPanLayout> reference;
 		public ScrollActionHandler( ZoomPanLayout zoomPanLayout ) {
@@ -844,6 +895,7 @@ public class ZoomPanLayout extends ViewGroup {
 		public void onDrag( Point point );
 		public void onDoubleTap( Point point );
 		public void onTap( Point point );
+		public void onLongTap( Point point );
 		public void onPinch( Point point );
 		public void onPinchStart( Point point );
 		public void onPinchComplete( Point point );

@@ -70,6 +70,24 @@ public class HotSpotManager implements DetailLevelEventListener {
 			}
 		}
 	}
+	
+	public void processLongHit( Point point ){
+		// fast-fail if no listeners
+		if(listeners.isEmpty()){
+			return;
+		}
+		// is there a match?
+		HotSpot hotSpot = getMatch( point );
+		if( hotSpot != null){
+			HotSpotEventListener spotListener = hotSpot.getHotSpotEventListener();
+			if( spotListener != null ) {
+				spotListener.onHotSpotLongTap( hotSpot, point.x, point.y );
+			}
+			for( HotSpotEventListener listener : listeners ) {
+				listener.onHotSpotLongTap( hotSpot, point.x, point.y );
+			}
+		}
+	}
 
 	@Override
 	public void onDetailLevelChanged() {

@@ -87,6 +87,19 @@ public class MarkerManager extends TranslationLayout implements DetailLevelEvent
 		}
 	}
 	
+	public void processLongHit ( Point point ) {
+		// fast-fail if no listeners
+		if( listeners.isEmpty() ){
+			return;
+		}
+		View view = getViewFromTap( point.x, point.y );
+		if( view != null ) {
+			for( MarkerEventListener listener : listeners ) {
+				listener.onMarkerLongTap( view, point.x, point.y );
+			}
+		}
+	}
+	
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		super.onLayout( changed, l, t, r, b );

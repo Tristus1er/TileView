@@ -859,6 +859,14 @@ public class TileView extends ZoomPanLayout {
 				listener.onScrollChanged( point.x, point.y );
 			}
 		}
+		@Override
+		public void onLongTap(Point point) {
+			markerManager.processLongHit( point );
+			hotSpotManager.processLongHit( point );
+			for ( TileViewEventListener listener : tileViewEventListeners ) {
+				listener.onLongTap( point.x, point.y );
+			}
+		}
 	};
 	
 	private TileRenderListener renderListener = new TileRenderListener(){
@@ -919,6 +927,12 @@ public class TileView extends ZoomPanLayout {
 		 * @param y (int) the y position of the event
 		 */
 		public void onTap( int x, int y );
+		/**
+		 * Fires when a user taps for a long time the TileView
+		 * @param x (int) the x position of the event
+		 * @param y (int) the y position of the event
+		 */
+		public void onLongTap( int x, int y );
 		/**
 		 * Fires while a user is pinching the TileView
 		 * @param x (int) the x position of the event
@@ -1031,6 +1045,14 @@ public class TileView extends ZoomPanLayout {
 		 * @param y (int) the y position of the event
 		 */
 		public void onTap( int x, int y ) {
+			
+		}
+		/**
+		 * Fires when a user taps for a long time the TileView
+		 * @param x (int) the x position of the event
+		 * @param y (int) the y position of the event
+		 */
+		public void onLongTap( int x, int y ) {
 			
 		}
 		/**
