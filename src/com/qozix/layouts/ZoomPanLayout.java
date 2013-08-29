@@ -226,7 +226,7 @@ public class ZoomPanLayout extends ViewGroup {
 	}
 
 	/**
-	 * Sets the scale (0-1) of the ZoomPanLayout
+	 * Sets the scale (0-maxScale) of the ZoomPanLayout
 	 * @param scale (double) The new value of the ZoomPanLayout scale
 	 */
 	public void setScale( double d ) {
@@ -782,7 +782,7 @@ public class ZoomPanLayout extends ViewGroup {
 			if ( determineIfQualifiedDoubleTap() ) {
 				saveHistoricalScale();
 				saveDoubleTapHistory();
-				double destination = Math.min( 1, scale * 2 );
+				double destination = Math.min( maxScale, scale * 2 );
 				smoothScaleTo( destination, ZOOM_ANIMATION_DURATION ); 
 				for ( GestureListener listener : gestureListeners ) {
 					listener.onDoubleTap( actualPoint );
