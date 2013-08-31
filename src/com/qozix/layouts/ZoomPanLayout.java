@@ -8,7 +8,6 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.widget.ScrollerCompat;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -19,6 +18,7 @@ import android.view.ViewGroup;
 import com.qozix.animation.Tween;
 import com.qozix.animation.TweenListener;
 import com.qozix.animation.easing.Strong;
+import com.qozix.widgets.Scroller;
 
 /**
  * ZoomPanLayout extends ViewGroup to provide support for scrolling and zooming.  Fling, drag, pinch and
@@ -86,7 +86,7 @@ public class ZoomPanLayout extends ViewGroup {
 	
 	private ScrollActionHandler scrollActionHandler;
 
-	private ScrollerCompat scroller;
+	private Scroller scroller;
 	private VelocityTracker velocity;
 
 	private HashSet<GestureListener> gestureListeners = new HashSet<GestureListener>();
@@ -141,8 +141,8 @@ public class ZoomPanLayout extends ViewGroup {
 		
 		scrollActionHandler = new ScrollActionHandler( this );
 
-		scroller = ScrollerCompat.create( context );
-		//scroller.setFriction( FRICTION );
+		scroller = new Scroller( context );
+		scroller.setFriction( FRICTION );
 
 		clip = new StaticLayout( context );
 		super.addView( clip, -1, new LayoutParams(-1, -1) );
@@ -450,6 +450,7 @@ public class ZoomPanLayout extends ViewGroup {
 	@Override
 	protected void onLayout( boolean changed, int l, int t, int r, int b ) {
 		clip.layout( 0, 0, clip.getMeasuredWidth(), clip.getMeasuredHeight() );
+		constrainScroll();
 		if ( changed ) {
 			calculateMinimumScaleToFit();
 		}
@@ -536,7 +537,7 @@ public class ZoomPanLayout extends ViewGroup {
 		Point limitScroll = new Point( currentScroll );
 		constrainPoint( limitScroll );
 		if ( !currentScroll.equals( limitScroll ) ) {
-			scrollToPoint( currentScroll );
+			scrollToPoint( limitScroll );
 		}
 	}
 
